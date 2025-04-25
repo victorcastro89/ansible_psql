@@ -1,0 +1,10 @@
+- hosts: 192.168.1.162
+  become: yes
+  vars_files:
+    - vars/vault.yml
+    - vars/main.yml
+  roles:
+    - geerlingguy.postgresql
+  pre_tasks:
+    - debug:
+        var: postgresql_users

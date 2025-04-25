@@ -1,0 +1,100 @@
+
+
+# Global configuration options that will be set in postgresql.conf.
+postgresql_global_config_options:
+  - option: listen_addresses
+    value: '*'
+  - option: unix_socket_directories
+    value: '{{ postgresql_unix_socket_directories | join(",") }}'
+  - option: log_directory
+    value: 'log'
+  - option: max_connections
+    value: '100'
+  - option: shared_buffers
+    value: '128MB'
+# Host based authentication (hba) entries to be added to the pg_hba.conf. This
+# variable's defaults reflect the defaults that come with a fresh installation.
+postgresql_hba_entries:
+  - {type: local, database: all, user: postgres, auth_method: peer}
+  - {type: local, database: all, user: all, auth_method: peer}
+  - {type: host, database: all, user: all, address: '192.168.1.0/24', auth_method: md5}
+  - {type: host, database: all, user: all, address: '::1/128', auth_method: md5}
+
+# Debian only. Used to generate the locales used by PostgreSQL databases.
+postgresql_locales:
+  - 'en_US.UTF-8'
+postgresql_restarted_state: "restarted"
+
+postgresql_data_dir: /db/data
+
+
+# Databases to ensure exist.
+postgresql_databases:
+  - name: db
+    encoding: 'UTF-8'
+    state: present
+    owner: crawler
+# - name: exampledb # required; the rest are optional
+#   lc_collate: # defaults to 'en_US.UTF-8'
+#   lc_ctype: # defaults to 'en_US.UTF-8'
+#   encoding: # defaults to 'UTF-8'
+#   template: # defaults to 'template0'
+#   login_host: # defaults to 'localhost'
+#   login_password: # defaults to not set
+#   login_user: # defaults to '{{ postgresql_user }}'
+#   login_unix_socket: # defaults to 1st of postgresql_unix_socket_directories
+#   port: # defaults to not set
+#   owner: # defaults to postgresql_user
+#   state: # defaults to 'present'
+
+# Users to ensure exist.
+postgresql_users:
+  - name: crawler
+    password: "{{ crawler_db_password }}"  # Define this in vault
+    encrypted: yes
+    role_attr_flags: "CREATEDB,LOGIN"
+  - name: root_admin
+    password: "{{ root_admin_password }}"  # Define this in vault
+    encrypted: yes
+    role_attr_flags: "SUPERUSER,CREATEDB,CREATEROLE,LOGIN"
+# - name: jdoe #required; the rest are optional
+#   password: # defaults to not set
+#   encrypted: # defaults to not set
+#   role_attr_flags: # defaults to not set
+#   db: # defaults to not set
+#   login_host: # defaults to 'localhost'
+#   login_password: # defaults to not set
+#   login_user: # defaults to '{{ postgresql_user }}'
+#   login_unix_socket: # defaults to 1st of postgresql_unix_socket_directories
+#   port: # defaults to not set
+#   state: # defaults to 'present'
+
+# Privileges to configure
+# see https://docs.ansible.com/ansible/latest/collections/community/postgresql/postgresql_privs_module.html#ansible-collections-community-postgresql-postgresql-privs-module
+
+postgresql_privs:
+  - db: db
+    roles: crawler
+    type: database
+    privs: ALL
+    state: present
+
+# - db: exampledb # database (required)
+#   roles: jdoe  # role(s) the privs apply to (required)
+#   privs: # comma separated list of privileges - defaults to not set
+#   type: # type of database object to set privileges on - defaults to not set
+#   objs: # list of database objects to set privileges on - defaults to not set
+#   schema: # defaults to not set
+#   session_role: # defaults to not set
+#   fail_on_role: # defaults to true
+#   grant_option: # defaults to not set
+#   target_roles: # defaults to not set
+#   login_host: # defaults to 'localhost'
+#   login_password: # defaults to not set
+#   login_user: # defaults to '{{ postgresql_user }}'
+#   login_unix_socket: # defaults to 1st of postgresql_unix_socket_directories
+#   port: # defaults to not set
+#   state: # defaults to 'present'
+
+# Whether to output user data when managing users.
+postgres_users_no_log: true
