@@ -6,7 +6,7 @@ postgresql_enablerepo: ""
 # `restarted` or `reloaded`
 postgresql_restarted_state: "restarted"
 
-postgresql_python_library: python-psycopg2
+postgresql_python_library: python3-psycopg2
 postgresql_user: postgres
 postgresql_group: postgres
 
